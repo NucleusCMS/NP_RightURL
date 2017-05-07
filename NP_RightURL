@@ -1,0 +1,128 @@
+<?php
+class NP_RightURL extends NucleusPlugin { 
+	function getName() { return 'RightURL'; } 
+	function getAuthor() { return 'Taka'; } 
+	function getURL() { return 'https://github.com/NucleusCMS/NP_RightURL'; } 
+	function getVersion() { return '0.5'; } 
+	function getDescription() { 
+		return 'If you have two or more BLOG, and when URL is different for every BLOG, plug-in creates the link to each BLOG by the right URL.'; 
+	} 
+	function supportsFeature($what) {
+		switch($what){
+			case 'SqlTablePrefix':
+				return 1;
+			default:
+				return 0;
+		}
+	}
+
+	function getEventList() { return array('PreItem','PostItem','PreSkinParse'); } 
+
+	function event_PreSkinParse($data) {
+		global $CONF, $manager, $blog;
+		
+		if (!$blog) {
+			$b =& $manager->getBlog($CONF['DefaultBlog']);
+		} else {
+			$b =& $blog;
+		}
+		$blogurl = $b->getURL();
+		
+		if (!$blogurl) {
+			if($blog) {
+				$b_tmp =& $manager->getBlog($CONF['DefaultBlog']);
+				$blogurl = $b_tmp->getURL();
+			}
+			if (!$blogurl) {
+				$blogurl = $CONF['IndexURL'];
+				if ($CONF['URLMode'] != 'pathinfo'){
+					if ($data['type'] == 'pageparser') {
+						$blogurl .= 'index.php';
+					} else {
+						$blogurl = $CONF['Self'];
+					}
+				}
+			}
+		}
+		if ($CONF['URLMode'] == 'pathinfo'){
+			if(substr($blogurl, -1) == '/')  $blogurl = substr($blogurl,0,-1);
+		}
+		$CONF['BlogURL'] = $blogurl;
+		$CONF['ItemURL'] = $blogurl;
+		$CONF['CategoryURL'] = $blogurl;
+		$CONF['ArchiveURL'] = $blogurl;
+		$CONF['ArchiveListURL'] = $blogurl;
+		$CONF['SearchURL'] = $blogurl;
+//		$CONF['MemberURL'] = $blogurl;
+	}
+	
+	function event_PreItem($data) {
+		global $CONF, $manager;
+
+		$itemid = $data['item']->itemid;
+		$itemblog =& $manager->getBlog(getBlogIDFromItemID($itemid));
+		$blogurl = $itemblog->getURL();
+		if (!$blogurl) {
+			$b =& $manager->getBlog($CONF['DefaultBlog']);
+			if (!($blogurl = $b->getURL())) {
+				$blogurl = $CONF['IndexURL'];
+				if ($CONF['URLMode'] != 'pathinfo'){
+					if ($data['type'] == 'pageparser') {
+						$blogurl .= 'index.php';
+					} else {
+						$blogurl = $CONF['Self'];
+					}
+				}
+			}
+		}
+		if ($CONF['URLMode'] == 'pathinfo'){
+			if(substr($blogurl, -1) == '/')  $blogurl = substr($blogurl,0,-1);
+		}
+			
+
+		$CONF['BlogURL'] = $blogurl;
+		$CONF['ItemURL'] = $blogurl;
+		$CONF['CategoryURL'] = $blogurl;
+		$CONF['ArchiveURL'] = $blogurl;
+		$CONF['ArchiveListURL'] = $blogurl;
+//		$CONF['MemberURL'] = $blogurl;
+	}
+	
+	function event_PostItem($data) {
+		global $CONF, $manager, $blog;
+		
+		if (!$blog) {
+			$b =& $manager->getBlog($CONF['DefaultBlog']);
+		} else {
+			$b =& $blog;
+		}
+		$blogurl = $b->getURL();
+		
+		if (!$blogurl) {
+			if($blog) {
+				$b_tmp =& $manager->getBlog($CONF['DefaultBlog']);
+				$blogurl = $b_tmp->getURL();
+			}
+			if (!$blogurl) {
+				$blogurl = $CONF['IndexURL'];
+				if ($CONF['URLMode'] != 'pathinfo'){
+					if ($data['type'] == 'pageparser') {
+						$blogurl .= 'index.php';
+					} else {
+						$blogurl = $CONF['Self'];
+					}
+				}
+			}
+		}
+		if ($CONF['URLMode'] == 'pathinfo'){
+			if(substr($blogurl, -1) == '/')  $blogurl = substr($blogurl,0,-1);
+		}
+		$CONF['BlogURL'] = $blogurl;
+		$CONF['ItemURL'] = $blogurl;
+		$CONF['CategoryURL'] = $blogurl;
+		$CONF['ArchiveURL'] = $blogurl;
+		$CONF['ArchiveListURL'] = $blogurl;
+//		$CONF['MemberURL'] = $CONF['Self'];
+	}
+
+}
